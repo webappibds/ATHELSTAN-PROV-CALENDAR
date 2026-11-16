@@ -41,8 +41,10 @@ button:focus-visible,a:focus-visible,label.file:focus-within{outline:3px solid v
 .remove{width:40px;height:40px;font-size:1.3rem}
 .row.installation .type{color:var(--red);font-weight:700}
 textarea{width:100%;max-width:32rem;padding:8px;border:1px solid #b9aa87;border-radius:4px;font:inherit}
-.text-fields{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px 18px;margin-bottom:24px}
-.text-fields label{font-weight:700;font-size:.9rem;color:var(--navy)}.text-fields input{margin-top:4px}
+.text-grid{margin-bottom:12px}.text-grid-row{display:grid;grid-template-columns:220px 1fr 1fr;gap:9px;padding:6px 0;border-bottom:1px solid #ece3d0;align-items:center}
+.text-grid-row>.text-label{font-weight:700;font-size:.9rem;color:var(--navy)}
+#translationList .text-grid-row{grid-template-columns:0 1fr 1fr;gap:0 9px}
+@media(max-width:700px){.text-grid-row,#translationList .text-grid-row{grid-template-columns:1fr 1fr;gap:6px 10px}.text-grid-row>.text-label{grid-column:1/-1}.text-grid-row.heading{display:none}}
 input[aria-invalid=true]{border-color:var(--red);background:#fff0ef}
 .picker{position:fixed;z-index:50;width:320px;max-width:calc(100vw - 16px);background:#fff;border:2px solid var(--navy);border-radius:10px;box-shadow:0 12px 32px #0005;padding:10px;font-size:.95rem}
 .picker-head{display:flex;align-items:center;justify-content:space-between;gap:4px;margin-bottom:6px}
@@ -118,8 +120,12 @@ input[aria-invalid=true]{border-color:var(--red);background:#fff0ef}
 </section>
 <section id="textsPanel" class="panel" role="tabpanel" aria-labelledby="tab-texts" hidden>
   <h2>Page texts</h2>
-  <p class="hint">These texts appear on the public calendar page.</p>
-  <div id="textFields" class="text-fields"></div>
+  <p class="hint">These texts appear on the public calendar page. Visitors choose <strong>Ελληνικά</strong> or <strong>English</strong> at the top of the page. An empty Greek field shows the English text.</p>
+  <div id="textFields" class="text-grid"><div class="text-grid-row heading" aria-hidden="true"><span>Text</span><span>English</span><span lang="el">Ελληνικά</span></div></div>
+  <h2>Greek names</h2>
+  <p class="hint">Greek names of cities, meeting types and languages, shown when visitors choose <strong>Ελληνικά</strong>. New cities and types are added here automatically. Leave a name empty to show the English one.</p>
+  <div id="translationList" class="text-grid"><div class="text-grid-row heading" aria-hidden="true"><span></span><span>English</span><span lang="el">Ελληνικά</span></div></div>
+  <button type="button" class="add" id="addTranslation">+ Add a name</button>
   <h2>Images</h2>
   <p class="hint">Upload a new image, then publish. Large photos are reduced automatically.</p>
   <section class="images"><div class="image-box"><strong>Left image — Province emblem</strong><div class="preview" id="emblemPreview">No emblem selected</div><p class="image-note" id="emblemNote"></p><div class="actions"><label class="file">Upload left image<input id="emblem" type="file" accept="image/*"></label><button type="button" id="resetEmblem" hidden>Use original image</button></div></div><div class="image-box"><strong>Right image — Provincial Grand Master</strong><div class="preview" id="portraitPreview">No portrait selected</div><p class="image-note" id="portraitNote"></p><div class="actions"><label class="file">Upload right image<input id="portrait" type="file" accept="image/*"></label><button type="button" id="resetPortrait" hidden>Use original image</button></div></div></section>
@@ -482,10 +488,10 @@ const courtListElement = document.getElementById('courtList');
 const typesInput = document.getElementById('types');
 const draftStatus = document.getElementById('draftStatus');
 const picker = document.getElementById('datePicker');
+const translationList = document.getElementById('translationList');
 const textLabels = {
   title: 'Main title', subtitle: 'Second title', name: 'Name (in red)', calendarWord: 'Word under the titles',
-  finderGreek: 'Court filter — Greek label', finderEnglish: 'Court filter — English label',
-  allCourts: 'Filter option for all Courts', worksHeading: 'Heading above the dates',
+  finder: 'Court filter label', allCourts: 'Filter option for all Courts', worksHeading: 'Heading above the dates',
   noDates: 'Message when a Court has no dates', pageTitle: 'Browser tab title'
 };
 let dataReady = false;
@@ -533,7 +539,38 @@ function refreshChoices() {
   });
   const cities = document.getElementById('cityOptions');
   cities.replaceChildren(...[...new Set(courts.map(court => court[1]).filter(Boolean))].map(city => new Option(city)));
+  syncTranslations();
 }
+// ----- Greek names -----
+function translationRow(english = '', greek = '') {
+  const row = element('div', 'text-grid-row translation');
+  const source = field('input', 'english', { placeholder: 'e.g. Chania', 'aria-label': 'English name' });
+  const target = field('input', 'greek', { lang: 'el', placeholder: 'π.χ. Χανιά', 'aria-label': 'Greek name for ' + (english || 'this name') });
+  source.value = english;
+  target.value = greek;
+  source.addEventListener('change', () => target.setAttribute('aria-label', 'Greek name for ' + source.value));
+  row.append(element('span'), cell('English', source), cell('Ελληνικά', target));
+  translationList.append(row);
+  return row;
+}
+function syncTranslations() {
+  const known = new Set([...translationList.querySelectorAll('.english')].map(input => input.value.trim()));
+  const needed = [...currentCourts().flatMap(court => [court[1], court[2]]),
+    ...[...list.querySelectorAll('.city')].map(input => input.value), ...currentTypes()];
+  for (const name of needed.map(name => name.trim())) {
+    if (name && !known.has(name)) { translationRow(name, ''); known.add(name); }
+  }
+}
+function currentTranslations() {
+  const result = {};
+  translationList.querySelectorAll('.translation').forEach(row => {
+    const english = row.querySelector('.english').value.trim(), greek = row.querySelector('.greek').value.trim();
+    if (english && greek) result[english] = greek;
+  });
+  return result;
+}
+list.addEventListener('change', event => { if (event.target.classList.contains('city')) syncTranslations(); });
+document.getElementById('addTranslation').onclick = () => { translationRow().querySelector('.english').focus(); };
 function worksFor(name) {
   return [...list.querySelectorAll('.court')].filter(select => select.value === name).length;
 }
@@ -645,8 +682,8 @@ function collectSchedule(validate = false) {
 }
 function collectContent(validate = false) {
   if (!dataReady) return null;
-  const texts = {};
-  document.querySelectorAll('#textFields input').forEach(input => { texts[input.name] = input.value.trim(); });
+  const texts = {}, textsGreek = {};
+  document.querySelectorAll('#textFields input').forEach(input => { (input.lang === 'el' ? textsGreek : texts)[input.name] = input.value.trim(); });
   const courts = currentCourts().filter(court => court.some(Boolean));
   const types = currentTypes();
   if (validate) {
@@ -661,7 +698,7 @@ function collectContent(validate = false) {
       return null;
     }
   }
-  return CourtCalendars.normaliseContent({ texts, courts, types: types.length ? types : ['Meeting'], images: currentImages() });
+  return CourtCalendars.normaliseContent({ texts, textsGreek, courts, types: types.length ? types : ['Meeting'], translations: currentTranslations(), images: currentImages() });
 }
 function saveDraft(schedule) {
   if (!schedule) return false;
@@ -862,17 +899,20 @@ function showContent(content) {
   content.courts.forEach(courtRow);
   typesInput.value = content.types.join('\n');
   const fields = document.getElementById('textFields');
-  fields.replaceChildren();
+  fields.querySelectorAll('.text-grid-row:not(.heading)').forEach(row => row.remove());
   Object.keys(textLabels).forEach(key => {
-    const id = 'text-' + key;
-    const label = field('label', '', { for: id });
+    const row = element('div', 'text-grid-row');
+    const english = field('input', '', { id: 'text-' + key, name: key, 'aria-label': textLabels[key] + ' — English' });
+    const greek = field('input', '', { id: 'text-el-' + key, name: key, lang: 'el', 'aria-label': textLabels[key] + ' — Ελληνικά' });
+    english.value = content.texts[key] || '';
+    greek.value = content.textsGreek[key] || '';
+    const label = field('label', 'text-label', { for: 'text-' + key });
     label.textContent = textLabels[key];
-    const input = field('input', '', { id, name: key });
-    input.value = content.texts[key] || '';
-    const wrapper = element('div');
-    wrapper.append(label, input);
-    fields.append(wrapper);
+    row.append(label, cell('English', english), cell('Ελληνικά', greek));
+    fields.append(row);
   });
+  translationList.querySelectorAll('.translation').forEach(row => row.remove());
+  Object.entries(content.translations).forEach(([english, greek]) => translationRow(english, greek));
   refreshChoices();
   showImages(content);
 }

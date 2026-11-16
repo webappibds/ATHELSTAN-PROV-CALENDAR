@@ -10,11 +10,11 @@ Responsive two-page calendar: `editor.html` for editing and `index.html` for the
 
 ## Two versions: view and edit
 
-- **View** (`index.html`) — the public, read-only calendar with the Court filter.
+- **View** (`index.html`) — the public, read-only calendar with the Court filter and an **Ελληνικά / English** switch at the top. The page opens in Greek for visitors whose browser is set to Greek, otherwise in English; a visitor's choice is remembered. Add `?lang=el` or `?lang=en` to a link to open it in a given language, for example `index.html?lang=el`.
 - **Edit** (`editor.html`) — fill in and change everything, in three tabs:
   - **📅 Works & dates** — one row per work: Court, city, date and meeting type. Click **📅** beside a date to choose it on a calendar. Days that already have a work show a red dot, and the month's other works are listed under the calendar. The month and weekday fill in automatically. **Sort by date** reorders the rows.
   - **🏛️ Courts** — add, rename or remove Courts (name and number, city, language, flag) and edit the list of meeting types. Renaming a Court also renames it in all its works. A Court that still has works cannot be removed. Keep the Court number unchanged so Google Calendar subscriptions keep working.
-  - **✏️ Page texts & images** — the titles, the name, the filter labels and the other texts shown on the public page, and the two header images.
+  - **✏️ Page texts & images** — every text shown on the public page in English and Greek side by side, the Greek names of cities, meeting types and languages, and the two header images. An empty Greek field shows the English text.
 
 Publishing saves the works to `calendar-data.js`, the Courts, meeting types, texts and image paths to `calendar-content.js`, and new images to `assets/uploads/`. Both appear on the public page.
 
