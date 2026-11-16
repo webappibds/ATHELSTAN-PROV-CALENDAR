@@ -271,3 +271,12 @@ test('image paths outside the assets folder are rejected', () => {
   const content = CourtCalendars.normaliseContent({ ...CourtCalendars.defaultContent(), images: { emblem: "assets/a.png'),url(x" } });
   assert.equal(content.images.emblem, 'assets/province-emblem.jpeg');
 });
+test('a missing uploaded image keeps the published image instead of breaking the page', async () => {
+  const live = 'assets/uploads/emblem-live.webp';
+  const content = CourtCalendars.normaliseContent({ ...CourtCalendars.defaultContent(), images: { emblem: 'assets/uploads/emblem-deleted.png', portrait: 'assets/provincial-grand-master.jpg' } });
+  const published = CourtCalendars.serializeContent(CourtCalendars.normaliseContent({ ...CourtCalendars.defaultContent(), images: { emblem: live, portrait: 'assets/provincial-grand-master.jpg' } }));
+  const s = setup({ session: { provinceGithubToken: 'unit-test-token' }, content, repositoryFeeds: { 'calendar-content.js': published, [live]: 'x' } });
+  await s.controller.init(); await s.ui.publish.onclick(); await flush();
+  assert.equal(s.ui.repository.dataset.state, 'success');
+  assert.equal(CourtCalendars.parseContent(s.repositoryFeeds.get('calendar-content.js')).images.emblem, live);
+});

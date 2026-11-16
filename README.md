@@ -65,7 +65,7 @@ Publishing uses sequential Contents API commits. If a later save fails after som
 
 **Save draft alone does not publish to other visitors.** The public page uses `calendar-data.js` from GitHub Pages. A fresh editor loads that programme; existing browser drafts are preserved.
 
-Header images are published too. Upload a new image in **✏️ Page texts & images**; the editor reduces large photos to at most 1600 px and keeps the image in your browser until you publish. Publishing uploads it to `assets/uploads/` under a new file name (so visitors never see an old cached copy), records it in `calendar-content.js`, and the **Live calendar** check confirms it is online. **Use original image** returns to the original emblem or portrait.
+Header images are published too. Upload a new image in **✏️ Page texts & images**; the editor reduces images to at most 800 px (WebP when the image is transparent, otherwise JPEG) and keeps the image in your browser until you publish. Publishing uploads it to `assets/uploads/` under a new file name (so visitors never see an old cached copy), records it in `calendar-content.js`, and the **Live calendar** check confirms it is online. **Use original image** returns to the original emblem or portrait.
 
 ## Editing the repository directly
 
