@@ -320,6 +320,10 @@ function createPublisher({ ui, getSchedule, getContent, getUploads, onUploaded, 
     if (!response.ok) {
       const error = new Error('GitHub request failed');
       error.status = response.status;
+      error.path = path;
+      error.saving = !!options.method;
+      // GitHub explains refusals in its response; show it so the token setting can be identified.
+      try { const body = await response.json(); if (body && typeof body.message === 'string') error.detail = body.message.slice(0, 200); } catch { /* No explanation given. */ }
       throw error;
     }
     return response.json();
@@ -426,13 +430,19 @@ function createPublisher({ ui, getSchedule, getContent, getUploads, onUploaded, 
         showConnection();
         status(ui.signin, 'error', 'Your GitHub connection has expired. Please connect again.');
       }
-      const reason = error.status === 403 || error.status === 404
-        ? 'Check that your token includes ATHELSTAN-PROV-CALENDAR and Contents: Read and write.'
+      const detail = String(error.detail || '');
+      const reason = /organi[sz]ation|approv|forbids access/i.test(detail)
+        ? 'The webappibds organisation has not approved this token yet. An organisation owner must approve it in the organisation settings under Personal access tokens → Pending requests.'
+        : error.status === 404 && !error.saving
+        ? 'This token cannot see the ATHELSTAN-PROV-CALENDAR repository. Edit the token on GitHub: Repository access → Only select repositories → ATHELSTAN-PROV-CALENDAR.'
+        : error.status === 403 || error.status === 404
+        ? 'This token can read the calendar but is not allowed to save it. Edit the token on GitHub: Repository access → Only select repositories → ATHELSTAN-PROV-CALENDAR, and Repository permissions → Contents: Read and write.'
         : error.status === 409
         ? 'The repository changed during this save. Check your programme and try publishing again.'
         : error.status === 401 ? 'Please connect again with a valid token.'
         : 'The save could not be confirmed. Check your connection and retry.';
-      status(ui.repository, 'error', 'Publish failed. ' + reason + (imagesSaved ? ' ' + imagesSaved + (imagesSaved === 1 ? ' image was' : ' images were') + ' uploaded.' : '') + (feedsSaved ? ' Some subscription files were saved; publish again to complete the programme and all subscriptions.' : '') + ' Your draft is still saved.');
+      const githubSays = error.status ? ' [GitHub ' + error.status + (error.path ? ' while ' + (error.saving ? 'saving ' : 'reading ') + error.path : '') + (detail ? ': “' + detail + '”' : '') + ']' : '';
+      status(ui.repository, 'error', 'Publish failed. ' + reason + githubSays + (imagesSaved ? ' ' + imagesSaved + (imagesSaved === 1 ? ' image was' : ' images were') + ' uploaded.' : '') + (feedsSaved ? ' Some subscription files were saved; publish again to complete the programme and all subscriptions.' : '') + ' Your draft is still saved.');
       status(ui.deployment, 'idle', 'No new live update has been confirmed.');
     } finally { busy = false; updateButton(); }
   }

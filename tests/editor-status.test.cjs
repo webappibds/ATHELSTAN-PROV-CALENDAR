@@ -280,3 +280,15 @@ test('a missing uploaded image keeps the published image instead of breaking the
   assert.equal(s.ui.repository.dataset.state, 'success');
   assert.equal(CourtCalendars.parseContent(s.repositoryFeeds.get('calendar-content.js')).images.emblem, live);
 });
+test('refusals explain which token setting is missing and quote GitHub', async () => {
+  const cases = [
+    [{ readStatus: 404 }, /cannot see the ATHELSTAN-PROV-CALENDAR repository/],
+    [{ publishStatus: 403 }, /not allowed to save it[\s\S]*Contents: Read and write[\s\S]*GitHub 403 while saving calendar-data\.js/],
+  ];
+  for (const [options, expected] of cases) {
+    const s = setup({ session: { provinceGithubToken: 'unit-test-token' }, ...options });
+    await s.controller.init(); await s.ui.publish.onclick(); await flush();
+    assert.equal(s.ui.repository.dataset.state, 'error');
+    assert.match(s.ui.repository.textContent, expected);
+  }
+});
