@@ -14,9 +14,9 @@ Responsive two-page calendar: `editor.html` for editing and `index.html` for the
 - **Edit** (`editor.html`) — fill in and change everything, in three tabs:
   - **📅 Works & dates** — one row per work: Court, city, date and meeting type. Click **📅** beside a date to choose it on a calendar. Days that already have a work show a red dot, and the month's other works are listed under the calendar. The month and weekday fill in automatically. **Sort by date** reorders the rows.
   - **🏛️ Courts** — add, rename or remove Courts (name and number, city, language, flag) and edit the list of meeting types. Renaming a Court also renames it in all its works. A Court that still has works cannot be removed. Keep the Court number unchanged so Google Calendar subscriptions keep working.
-  - **✏️ Page texts & images** — the titles, the name, the filter labels and the other texts shown on the public page.
+  - **✏️ Page texts & images** — the titles, the name, the filter labels and the other texts shown on the public page, and the two header images.
 
-Publishing saves the works to `calendar-data.js` and the Courts, meeting types and texts to `calendar-content.js`. Both appear on the public page.
+Publishing saves the works to `calendar-data.js`, the Courts, meeting types, texts and image paths to `calendar-content.js`, and new images to `assets/uploads/`. Both appear on the public page.
 
 ## Add a Court to Google Calendar
 
@@ -65,7 +65,7 @@ Publishing uses sequential Contents API commits. If a later save fails after som
 
 **Save draft alone does not publish to other visitors.** The public page uses `calendar-data.js` from GitHub Pages. A fresh editor loads that programme; existing browser drafts are preserved.
 
-Header-image uploads currently remain local to the editor; publishing saves the schedule and its Court subscriptions.
+Header images are published too. Upload a new image in **✏️ Page texts & images**; the editor reduces large photos to at most 1600 px and keeps the image in your browser until you publish. Publishing uploads it to `assets/uploads/` under a new file name (so visitors never see an old cached copy), records it in `calendar-content.js`, and the **Live calendar** check confirms it is online. **Use original image** returns to the original emblem or portrait.
 
 ## Editing the repository directly
 

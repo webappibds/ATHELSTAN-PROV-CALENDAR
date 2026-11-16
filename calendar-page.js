@@ -28,6 +28,10 @@
       if (text) element.textContent = text;
     });
     if (content.texts.pageTitle) document.title = content.texts.pageTitle;
+    for (const [id, key] of [['emblem', 'emblem'], ['portrait', 'portrait']]) {
+      const path = content.images[key];
+      if (share.isImagePath(path)) document.getElementById(id).style.backgroundImage = "url('" + path + "')";
+    }
     const response = await fetch('calendar-data.js?updated=' + Date.now(), { cache: 'no-store' });
     if (!response.ok) throw new Error('Calendar download failed');
     const schedule = share.parseSchedule(await response.text());

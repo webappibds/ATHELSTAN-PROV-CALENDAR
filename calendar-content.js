@@ -20,5 +20,9 @@ window.PROVINCE_CONTENT={
 ["Sophia No. 193","Piraeus","Greek","🇬🇷"],
 ["William Cartwright No. 196","Corfu","Greek","🇬🇷"]
 ],
-"types":["Meeting","Installation","Annual Meeting","Emergency Meeting"]
+"types":["Meeting","Installation","Annual Meeting","Emergency Meeting"],
+"images":{
+ "emblem": "assets/province-emblem.jpeg",
+ "portrait": "assets/provincial-grand-master.jpg"
+}
 };

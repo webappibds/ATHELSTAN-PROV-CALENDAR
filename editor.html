@@ -68,6 +68,7 @@ input[aria-invalid=true]{border-color:var(--red);background:#fff0ef}
 .row .remove,.court-row .remove{grid-column:1/-1;width:100%}
 }
 @media(max-width:420px){.row,.court-row{grid-template-columns:1fr}}
+.image-note{margin:0 0 10px;font-size:.9rem;color:#655a48;min-height:1.2em}
 </style></head><body><main class="wrap"><header class="top"><div><h1>Province of Greece — Calendar Editor</h1><div class="hint">Connect GitHub, edit the Court works, Courts and page texts, and publish. Follow the status below until the live update is confirmed.</div></div><nav class="actions"><button class="primary" id="save">Save draft</button><button class="primary" id="publish">Connect GitHub</button><a id="resultLink" href="https://webappibds.github.io/ATHELSTAN-PROV-CALENDAR/index.html" target="_blank" rel="noopener noreferrer">Open live calendar ↗</a></nav></header>
 <section class="publication" aria-labelledby="publicationTitle">
   <h2 id="publicationTitle">Publication status</h2>
@@ -120,13 +121,14 @@ input[aria-invalid=true]{border-color:var(--red);background:#fff0ef}
   <p class="hint">These texts appear on the public calendar page.</p>
   <div id="textFields" class="text-fields"></div>
   <h2>Images</h2>
-  <section class="images"><div class="image-box"><strong>Left image — Province emblem</strong><div class="preview" id="emblemPreview">No emblem selected</div><label class="file">Upload left image<input id="emblem" type="file" accept="image/*"></label></div><div class="image-box"><strong>Right image — Provincial Grand Master</strong><div class="preview" id="portraitPreview">No portrait selected</div><label class="file">Upload right image<input id="portrait" type="file" accept="image/*"></label></div></section>
+  <p class="hint">Upload a new image, then publish. Large photos are reduced automatically.</p>
+  <section class="images"><div class="image-box"><strong>Left image — Province emblem</strong><div class="preview" id="emblemPreview">No emblem selected</div><p class="image-note" id="emblemNote"></p><div class="actions"><label class="file">Upload left image<input id="emblem" type="file" accept="image/*"></label><button type="button" id="resetEmblem" hidden>Use original image</button></div></div><div class="image-box"><strong>Right image — Provincial Grand Master</strong><div class="preview" id="portraitPreview">No portrait selected</div><p class="image-note" id="portraitNote"></p><div class="actions"><label class="file">Upload right image<input id="portrait" type="file" accept="image/*"></label><button type="button" id="resetPortrait" hidden>Use original image</button></div></div></section>
 </section>
 <datalist id="cityOptions"></datalist><datalist id="languageOptions"><option value="English"><option value="Greek"></datalist><datalist id="flagOptions"><option value="🇬🇧"><option value="🇬🇷"></datalist>
 <div id="datePicker" class="picker" role="dialog" aria-label="Choose a date" hidden></div>
-</main><script src="calendar-subscriptions.js?v=4"></script><script>
+</main><script src="calendar-subscriptions.js?v=5"></script><script>
 // GitHub confirms the repository save; the public data confirms the live update.
-function createPublisher({ ui, getSchedule, getContent, saveDraft }) {
+function createPublisher({ ui, getSchedule, getContent, getUploads, onUploaded, saveDraft }) {
   const repository = 'https://api.github.com/repos/webappibds/ATHELSTAN-PROV-CALENDAR';
   const live = 'https://webappibds.github.io/ATHELSTAN-PROV-CALENDAR/';
   const tokenKey = 'provinceGithubToken';
@@ -174,7 +176,7 @@ function createPublisher({ ui, getSchedule, getContent, saveDraft }) {
     writeSession(publicationKey, JSON.stringify(pending));
   }
   function savedMessage(publication) {
-    status(ui.repository, 'success', `✓ Saved to GitHub — ${publication.schedule.length} Court works${publication.feeds ? " and Court subscriptions" : ""}${publication.content ? ", Courts and page texts" : ""}, ${time(publication.savedAt)}.`);
+    status(ui.repository, 'success', `✓ Saved to GitHub — ${publication.schedule.length} Court works${publication.feeds ? " and Court subscriptions" : ""}${publication.content ? ", Courts and page texts" : ""}${publication.images && publication.images.length ? ", " + publication.images.length + (publication.images.length === 1 ? " image" : " images") : ""}, ${time(publication.savedAt)}.`);
     ui.repositoryLink.hidden = false;
   }
   function forgetToken() {
@@ -221,6 +223,13 @@ function createPublisher({ ui, getSchedule, getContent, saveDraft }) {
       if (dataMatches && publication.content) {
         const response = await request(live + 'calendar-content.js?updated=' + Date.now());
         feedsMatch = response.ok && (await response.text()).replace(/\r\n/g, '\n') === publication.content;
+      }
+      if (dataMatches && feedsMatch && publication.images) {
+        const results = await Promise.all(publication.images.map(async path => {
+          if (!CourtCalendars.isImagePath(path)) return false;
+          return (await request(live + path + '?updated=' + Date.now())).ok;
+        }));
+        feedsMatch = results.every(Boolean);
       }
       if (dataMatches && feedsMatch && publication.feeds) {
         const results = await Promise.all(publication.feeds.map(async feed => {
@@ -311,8 +320,9 @@ function createPublisher({ ui, getSchedule, getContent, saveDraft }) {
     if (!file || typeof file.content !== 'string' || file.encoding !== 'base64') throw new Error('File not confirmed');
     return new TextDecoder().decode(Uint8Array.from(atob(file.content.replace(/\s/g, '')), character => character.charCodeAt(0)));
   }
-  async function writeFile(path, text, existing) {
-    const content = btoa(Array.from(new TextEncoder().encode(text), byte => String.fromCharCode(byte)).join(''));
+  async function writeFile(path, text, existing, base64) {
+    // Images arrive already base64-encoded; text files are encoded as UTF-8.
+    const content = base64 || btoa(Array.from(new TextEncoder().encode(text), byte => String.fromCharCode(byte)).join(''));
     const body = { message: 'Update Province calendar from editor: ' + path, branch: 'main', content };
     if (existing) body.sha = existing.sha;
     const result = await githubFile(path, { method: 'PUT', body: JSON.stringify(body) });
@@ -338,8 +348,9 @@ function createPublisher({ ui, getSchedule, getContent, saveDraft }) {
     const content = getContent ? getContent() : null;
     if (getContent && !content) return;
     if (!saveDraft(schedule)) return;
+    const uploads = getUploads ? getUploads() : [];
     busy = true;
-    let feedsSaved = 0;
+    let feedsSaved = 0, imagesSaved = 0;
     updateButton();
     try {
       clearTimeout(timer);
@@ -354,6 +365,14 @@ function createPublisher({ ui, getSchedule, getContent, saveDraft }) {
       const existing = await githubFile('calendar-data.js');
       if (typeof existing.sha !== 'string' || !existing.sha) throw new Error('File not confirmed');
       const previous = parseSchedule(decodeFile(existing));
+      for (let i = 0; i < uploads.length; i++) {
+        const upload = uploads[i];
+        if (!CourtCalendars.isImagePath(upload.path)) throw new Error('Invalid image path');
+        status(ui.repository, 'busy', `Uploading images — ${i + 1} of ${uploads.length}…`);
+        // Each upload has a new file name, so an existing file means an earlier attempt already saved it.
+        const old = await githubFile(upload.path, {}, true);
+        if (!old) { await writeFile(upload.path, '', null, upload.base64); imagesSaved++; }
+      }
       const generatedAt = new Date().toISOString();
       if (content) CourtCalendars.useCourts(content.courts);
       const feeds = CourtCalendars.buildFeeds(schedule, generatedAt, previous);
@@ -381,7 +400,8 @@ function createPublisher({ ui, getSchedule, getContent, saveDraft }) {
       status(ui.repository, 'busy', 'Court subscriptions saved. Saving the programme…');
       const programme = 'window.PROVINCE_SCHEDULE=' + JSON.stringify(schedule) + ';';
       await writeFile('calendar-data.js', programme, existing);
-      pending = { schedule, feeds, content: contentText, savedAt: new Date().toISOString(), liveVerifiedAt: null };
+      if (uploads.length && onUploaded) onUploaded(uploads);
+      pending = { schedule, feeds, content: contentText, images: uploads.map(upload => upload.path), savedAt: new Date().toISOString(), liveVerifiedAt: null };
       rememberPublication();
       savedMessage(pending);
       monitor();
@@ -397,7 +417,7 @@ function createPublisher({ ui, getSchedule, getContent, saveDraft }) {
         ? 'The repository changed during this save. Check your programme and try publishing again.'
         : error.status === 401 ? 'Please connect again with a valid token.'
         : 'The save could not be confirmed. Check your connection and retry.';
-      status(ui.repository, 'error', 'Publish failed. ' + reason + (feedsSaved ? ' Some subscription files were saved; publish again to complete the programme and all subscriptions.' : '') + ' Your draft is still saved.');
+      status(ui.repository, 'error', 'Publish failed. ' + reason + (imagesSaved ? ' ' + imagesSaved + (imagesSaved === 1 ? ' image was' : ' images were') + ' uploaded.' : '') + (feedsSaved ? ' Some subscription files were saved; publish again to complete the programme and all subscriptions.' : '') + ' Your draft is still saved.');
       status(ui.deployment, 'idle', 'No new live update has been confirmed.');
     } finally { busy = false; updateButton(); }
   }
@@ -641,7 +661,7 @@ function collectContent(validate = false) {
       return null;
     }
   }
-  return CourtCalendars.normaliseContent({ texts, courts, types: types.length ? types : ['Meeting'] });
+  return CourtCalendars.normaliseContent({ texts, courts, types: types.length ? types : ['Meeting'], images: currentImages() });
 }
 function saveDraft(schedule) {
   if (!schedule) return false;
@@ -854,16 +874,23 @@ function showContent(content) {
     fields.append(wrapper);
   });
   refreshChoices();
+  showImages(content);
 }
 async function loadContent() {
   let draft;
   try { draft = JSON.parse(localStorage.getItem('provinceContent') || 'null'); } catch { /* Load the published content below. */ }
-  if (CourtCalendars.isContent(draft)) return { content: CourtCalendars.normaliseContent(draft), draft: true };
+  let published = CourtCalendars.defaultContent();
   try {
     const response = await fetch('calendar-content.js?updated=' + Date.now(), { cache: 'no-store' });
-    if (response.ok) return { content: CourtCalendars.parseContent(await response.text()), draft: false };
+    if (response.ok) published = CourtCalendars.parseContent(await response.text());
   } catch { /* Use the original Courts and texts. */ }
-  return { content: CourtCalendars.defaultContent(), draft: false };
+  if (CourtCalendars.isContent(draft)) {
+    // Images always start from the live site; new uploads waiting to publish are kept separately.
+    const content = CourtCalendars.normaliseContent(draft);
+    content.images = published.images;
+    return { content, draft: true };
+  }
+  return { content: published, draft: false };
 }
 async function loadSchedule() {
   const loaded = await loadContent();
@@ -886,29 +913,117 @@ async function loadSchedule() {
     message(loaded.draft ? 'The published programme and your draft Courts and texts are loaded.' : 'The published programme is loaded. Edit the works, Courts or texts, then publish your changes.');
   } catch { message('The published programme could not be loaded. Please refresh this page before editing.', 'error'); }
 }
-function imageInput(id, key, preview, fallback) {
-  const input = document.querySelector(id), display = document.querySelector(preview);
-  let saved;
-  try { saved = localStorage.getItem(key); } catch { /* Show the current published image. */ }
-  display.style.backgroundImage = `url('${saved || fallback}')`;
+// ----- Images: prepared in the browser, uploaded to assets/uploads/ when publishing -----
+const images = {
+  emblem: { input: '#emblem', preview: '#emblemPreview', reset: '#resetEmblem', note: '#emblemNote', dataKey: 'provinceEmblem', pathKey: 'provinceEmblemPath', published: 'assets/province-emblem.jpeg' },
+  portrait: { input: '#portrait', preview: '#portraitPreview', reset: '#resetPortrait', note: '#portraitNote', dataKey: 'provincePortrait', pathKey: 'provincePortraitPath', published: 'assets/provincial-grand-master.jpg' }
+};
+const originalImages = CourtCalendars.defaultContent().images;
+function readLocal(key) { try { return localStorage.getItem(key); } catch { return null; } }
+function writeLocal(key, value) {
+  if (value === null) { try { localStorage.removeItem(key); } catch { /* Nothing stored. */ } return; }
+  localStorage.setItem(key, value);
+}
+function uploadPath(name, data) {
+  const extension = data.startsWith('data:image/png') ? 'png' : 'jpg';
+  return 'assets/uploads/' + name + '-' + new Date().toISOString().replace(/\D/g, '').slice(0, 14) + '.' + extension;
+}
+function pendingImage(name) {
+  const image = images[name], data = readLocal(image.dataKey);
+  if (!data || !/^data:image\/(png|jpeg);base64,/.test(data)) return null;
+  let path = readLocal(image.pathKey);
+  if (!CourtCalendars.isImagePath(path)) {
+    // Images chosen before uploads were published get a file name now.
+    path = uploadPath(name, data);
+    try { writeLocal(image.pathKey, path); } catch { /* Still published from this tab. */ }
+  }
+  return { data, path };
+}
+function showImage(name) {
+  const image = images[name], pending = pendingImage(name);
+  const display = document.querySelector(image.preview);
+  display.style.backgroundImage = "url('" + (pending ? pending.data : image.published) + "')";
   display.textContent = '';
-  input.onchange = event => {
-    const file = event.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      try {
-        localStorage.setItem(key, reader.result);
-        display.style.backgroundImage = `url('${reader.result}')`;
-        message('Image saved in this browser. Publishing updates the Court dates; image uploads remain local.');
-      } catch { message('This image could not be saved. Try a smaller image.', 'error'); }
+  document.querySelector(image.note).textContent = pending
+    ? 'New image ready — it goes live when you publish.'
+    : image.published === originalImages[name] ? 'Original image.' : 'Published image.';
+  document.querySelector(image.reset).hidden = !pending && image.published === originalImages[name];
+}
+function prepareImage(file) {
+  // Shrink large photos so uploads stay small; PNG keeps transparency.
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file), picture = new Image();
+    picture.onload = () => {
+      const scale = Math.min(1, 1600 / Math.max(picture.naturalWidth, picture.naturalHeight));
+      const canvas = document.createElement('canvas');
+      canvas.width = Math.max(1, Math.round(picture.naturalWidth * scale));
+      canvas.height = Math.max(1, Math.round(picture.naturalHeight * scale));
+      canvas.getContext('2d').drawImage(picture, 0, 0, canvas.width, canvas.height);
+      URL.revokeObjectURL(url);
+      resolve(/png|gif|webp|svg/.test(file.type) ? canvas.toDataURL('image/png') : canvas.toDataURL('image/jpeg', 0.9));
     };
-    reader.onerror = () => message('The image could not be read. Please choose it again.', 'error');
-    reader.readAsDataURL(file);
+    picture.onerror = () => { URL.revokeObjectURL(url); reject(new Error('Unreadable image')); };
+    picture.src = url;
+  });
+}
+function showImages(content) {
+  for (const name of Object.keys(images)) {
+    images[name].published = content.images[name];
+    showImage(name);
+  }
+}
+for (const [name, image] of Object.entries(images)) {
+  document.querySelector(image.input).onchange = async event => {
+    const file = event.target.files[0];
+    event.target.value = '';
+    if (!file) return;
+    try {
+      const data = await prepareImage(file);
+      try {
+        writeLocal(image.dataKey, data);
+        writeLocal(image.pathKey, uploadPath(name, data));
+      } catch {
+        writeLocal(image.dataKey, null);
+        writeLocal(image.pathKey, null);
+        message('This image is too large to keep in the browser. Try a smaller image.', 'error');
+        return;
+      }
+      showImage(name);
+      message('Image ready. Publish changes to put it on the live calendar.', 'pending');
+    } catch { message('The image could not be read. Please choose a JPEG or PNG image.', 'error'); }
+  };
+  document.querySelector(image.reset).onclick = () => {
+    writeLocal(image.dataKey, null);
+    writeLocal(image.pathKey, null);
+    image.published = originalImages[name];
+    showImage(name);
+    markChanged();
   };
 }
-imageInput('#emblem', 'provinceEmblem', '#emblemPreview', 'assets/province-emblem.jpeg');
-imageInput('#portrait', 'provincePortrait', '#portraitPreview', 'assets/provincial-grand-master.jpg');
+function currentImages() {
+  return Object.fromEntries(Object.keys(images).map(name => {
+    const pending = pendingImage(name);
+    return [name, pending ? pending.path : images[name].published];
+  }));
+}
+function imageUploads() {
+  return Object.keys(images).map(name => {
+    const pending = pendingImage(name);
+    return pending && { name, path: pending.path, base64: pending.data.split(',')[1] };
+  }).filter(Boolean);
+}
+function imagesUploaded(uploads) {
+  for (const upload of uploads) {
+    const image = images[upload.name];
+    // Only clear the image that was published, not one chosen while publishing.
+    if (readLocal(image.pathKey) === upload.path) {
+      writeLocal(image.dataKey, null);
+      writeLocal(image.pathKey, null);
+    }
+    image.published = upload.path;
+    showImage(upload.name);
+  }
+}
 const publisher = createPublisher({
   ui: {
     publish: document.getElementById('publish'), signin: document.getElementById('signinStatus'),
@@ -919,7 +1034,7 @@ const publisher = createPublisher({
     connect: document.getElementById('connectGithub'), form: document.getElementById('githubConnectForm'),
     cancel: document.getElementById('cancelConnection')
   },
-  getSchedule: () => collectSchedule(true), getContent: () => collectContent(true), saveDraft
+  getSchedule: () => collectSchedule(true), getContent: () => collectContent(true), getUploads: imageUploads, onUploaded: imagesUploaded, saveDraft
 });
 document.getElementById('createGithubToken').onclick = () => saveDraft(collectSchedule());
 void publisher.init();

@@ -24,8 +24,13 @@
     noDates: 'No dates are currently published for this Court.'
   };
   const defaultTypes = ['Meeting', 'Installation', 'Annual Meeting', 'Emergency Meeting'];
+  const defaultImages = { emblem: 'assets/province-emblem.jpeg', portrait: 'assets/provincial-grand-master.jpg' };
   function defaultContent() {
-    return { texts: { ...defaultTexts }, courts: courts.map(court => court.slice()), types: defaultTypes.slice() };
+    return { texts: { ...defaultTexts }, courts: courts.map(court => court.slice()), types: defaultTypes.slice(), images: { ...defaultImages } };
+  }
+  function isImagePath(value) {
+    // Only images stored in this repository's assets folder; the path is also used inside CSS url().
+    return typeof value === 'string' && /^assets\/[A-Za-z0-9_\/-]+\.(?:png|jpe?g|gif|webp)$/i.test(value) && !value.includes('..');
   }
   function isContent(value) {
     return !!value && typeof value === 'object' && !!value.texts && typeof value.texts === 'object'
@@ -40,6 +45,9 @@
     Object.assign(result.texts, value.texts);
     result.courts = value.courts.map(court => court.slice());
     if (value.types.length) result.types = value.types.slice();
+    if (value.images && typeof value.images === 'object') {
+      for (const key of Object.keys(defaultImages)) if (isImagePath(value.images[key])) result.images[key] = value.images[key];
+    }
     return result;
   }
   function parseContent(source) {
@@ -53,7 +61,8 @@
     // One Court per line keeps the file readable for direct edits.
     return 'window.PROVINCE_CONTENT={\n"texts":' + JSON.stringify(content.texts, null, 1)
       + ',\n"courts":[\n' + content.courts.map(court => JSON.stringify(court)).join(',\n')
-      + '\n],\n"types":' + JSON.stringify(content.types) + '\n};\n';
+      + '\n],\n"types":' + JSON.stringify(content.types)
+      + ',\n"images":' + JSON.stringify(content.images || defaultImages, null, 1) + '\n};\n';
   }
   function useCourts(list) {
     // Replace in place so every helper sees the edited Court list.
@@ -160,7 +169,7 @@
       location: row[2], details: details(row) });
     return 'https://calendar.google.com/calendar/r/eventedit?' + query.toString();
   }
-  const api = { base, courts, defaultContent, isContent, normaliseContent, parseContent, serializeContent, useCourts, date, isSchedule, parseSchedule, courtKey, title, feedPath, feedUrl,
+  const api = { base, courts, defaultContent, isImagePath, isContent, normaliseContent, parseContent, serializeContent, useCourts, date, isSchedule, parseSchedule, courtKey, title, feedPath, feedUrl,
     selected, courtList, nextDay, escapeText, fold, calendar, buildFeeds, googleEventUrl };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.CourtCalendars = api;
