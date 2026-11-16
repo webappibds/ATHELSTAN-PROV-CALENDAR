@@ -9,15 +9,15 @@ X-WR-CALDESC:Court dates published by the Province of Greece. Updates are r
 X-WR-TIMEZONE:Europe/Athens
 BEGIN:VEVENT
 UID:court-192-20260605-1@athelstan-province-greece
-DTSTAMP:20260913T121344Z
-LAST-MODIFIED:20260913T121344Z
+DTSTAMP:20261116T203736Z
+LAST-MODIFIED:20261116T203736Z
 DTSTART;VALUE=DATE:20260605
 DTEND;VALUE=DATE:20260606
 SUMMARY:ATHELSTAN Court Rosa Rhodensis No. 192
 LOCATION:Rodos
 DESCRIPTION:Province of Greece — Works of the Court\nMeeting type: Meetin
  g\nLanguage: English\nWebsite: https://moa-greece.gr/\nPublished programme
- : https://dskiad.github.io/ATHELSTAN-PROV-CALENDAR/
+ : https://webappibds.github.io/ATHELSTAN-PROV-CALENDAR/
 URL:https://moa-greece.gr/
 COLOR:red
 STATUS:CONFIRMED
@@ -25,15 +25,15 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:court-192-20260703-1@athelstan-province-greece
-DTSTAMP:20260913T121344Z
-LAST-MODIFIED:20260913T121344Z
+DTSTAMP:20261116T203736Z
+LAST-MODIFIED:20261116T203736Z
 DTSTART;VALUE=DATE:20260703
 DTEND;VALUE=DATE:20260704
 SUMMARY:ATHELSTAN Court Rosa Rhodensis No. 192
 LOCATION:Rodos
 DESCRIPTION:Province of Greece — Works of the Court\nMeeting type: Instal
  lation\nLanguage: English\nWebsite: https://moa-greece.gr/\nPublished prog
- ramme: https://dskiad.github.io/ATHELSTAN-PROV-CALENDAR/
+ ramme: https://webappibds.github.io/ATHELSTAN-PROV-CALENDAR/
 URL:https://moa-greece.gr/
 COLOR:red
 STATUS:CONFIRMED
@@ -41,15 +41,15 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:court-192-20260904-1@athelstan-province-greece
-DTSTAMP:20260913T121344Z
-LAST-MODIFIED:20260913T121344Z
+DTSTAMP:20261116T203736Z
+LAST-MODIFIED:20261116T203736Z
 DTSTART;VALUE=DATE:20260904
 DTEND;VALUE=DATE:20260905
 SUMMARY:ATHELSTAN Court Rosa Rhodensis No. 192
 LOCATION:Rodos
 DESCRIPTION:Province of Greece — Works of the Court\nMeeting type: Meetin
  g\nLanguage: English\nWebsite: https://moa-greece.gr/\nPublished programme
- : https://dskiad.github.io/ATHELSTAN-PROV-CALENDAR/
+ : https://webappibds.github.io/ATHELSTAN-PROV-CALENDAR/
 URL:https://moa-greece.gr/
 COLOR:red
 STATUS:CONFIRMED
@@ -57,15 +57,15 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:court-192-20270604-1@athelstan-province-greece
-DTSTAMP:20260913T121344Z
-LAST-MODIFIED:20260913T121344Z
+DTSTAMP:20261116T203736Z
+LAST-MODIFIED:20261116T203736Z
 DTSTART;VALUE=DATE:20270604
 DTEND;VALUE=DATE:20270605
 SUMMARY:ATHELSTAN Court Rosa Rhodensis No. 192
 LOCATION:Rodos
 DESCRIPTION:Province of Greece — Works of the Court\nMeeting type: Meetin
  g\nLanguage: English\nWebsite: https://moa-greece.gr/\nPublished programme
- : https://dskiad.github.io/ATHELSTAN-PROV-CALENDAR/
+ : https://webappibds.github.io/ATHELSTAN-PROV-CALENDAR/
 URL:https://moa-greece.gr/
 COLOR:red
 STATUS:CONFIRMED
@@ -73,15 +73,15 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:court-192-20270702-1@athelstan-province-greece
-DTSTAMP:20260913T121344Z
-LAST-MODIFIED:20260913T121344Z
+DTSTAMP:20261116T203736Z
+LAST-MODIFIED:20261116T203736Z
 DTSTART;VALUE=DATE:20270702
 DTEND;VALUE=DATE:20270703
 SUMMARY:ATHELSTAN Court Rosa Rhodensis No. 192
 LOCATION:Rodos
 DESCRIPTION:Province of Greece — Works of the Court\nMeeting type: Instal
  lation\nLanguage: English\nWebsite: https://moa-greece.gr/\nPublished prog
- ramme: https://dskiad.github.io/ATHELSTAN-PROV-CALENDAR/
+ ramme: https://webappibds.github.io/ATHELSTAN-PROV-CALENDAR/
 URL:https://moa-greece.gr/
 COLOR:red
 STATUS:CONFIRMED
@@ -89,15 +89,15 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:court-192-20270903-1@athelstan-province-greece
-DTSTAMP:20260913T121344Z
-LAST-MODIFIED:20260913T121344Z
+DTSTAMP:20261116T203736Z
+LAST-MODIFIED:20261116T203736Z
 DTSTART;VALUE=DATE:20270903
 DTEND;VALUE=DATE:20270904
 SUMMARY:ATHELSTAN Court Rosa Rhodensis No. 192
 LOCATION:Rodos
 DESCRIPTION:Province of Greece — Works of the Court\nMeeting type: Meetin
  g\nLanguage: English\nWebsite: https://moa-greece.gr/\nPublished programme
- : https://dskiad.github.io/ATHELSTAN-PROV-CALENDAR/
+ : https://webappibds.github.io/ATHELSTAN-PROV-CALENDAR/
 URL:https://moa-greece.gr/
 COLOR:red
 STATUS:CONFIRMED

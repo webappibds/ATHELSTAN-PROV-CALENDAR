@@ -4,8 +4,8 @@ Responsive two-page calendar: `editor.html` for editing and `index.html` for the
 
 ## Quick links
 
-- **[OPEN THE EDITOR — edit and publish dates](https://dskiad.github.io/ATHELSTAN-PROV-CALENDAR/editor.html)**
-- **[OPEN THE LIVE CALENDAR — public result with Court filter](https://dskiad.github.io/ATHELSTAN-PROV-CALENDAR/index.html)**
+- **[OPEN THE EDITOR — edit and publish dates](https://webappibds.github.io/ATHELSTAN-PROV-CALENDAR/editor.html)**
+- **[OPEN THE LIVE CALENDAR — public result with Court filter](https://webappibds.github.io/ATHELSTAN-PROV-CALENDAR/index.html)**
 - [MOA Greece embedded calendar](https://moa-greece.gr/calendar/)
 
 ## Add a Court to Google Calendar
@@ -31,7 +31,7 @@ The editor publishes directly from your browser to GitHub's REST API. It uses a 
 
 1. Open the editor and click **Connect GitHub**.
 2. Click **Create a GitHub token** in the connection panel. The link pre-fills the token name, owner, expiration and Contents permission.
-3. Sign in as **dskiad**. Under **Repository access**, choose **Only select repositories**, then **ATHELSTAN-PROV-CALENDAR**.
+3. Sign in as **webappibds**. Under **Repository access**, choose **Only select repositories**, then **ATHELSTAN-PROV-CALENDAR**.
 4. Confirm **Contents: Read and write** under repository permissions, then click **Generate token**.
 5. Copy the token into the editor's **GitHub access token** field and click **Connect securely**.
 

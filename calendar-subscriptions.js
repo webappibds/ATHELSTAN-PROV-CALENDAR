@@ -1,6 +1,6 @@
 (function (root) {
   'use strict';
-  const base = 'https://dskiad.github.io/ATHELSTAN-PROV-CALENDAR/';
+  const base = 'https://webappibds.github.io/ATHELSTAN-PROV-CALENDAR/';
   const website = 'https://moa-greece.gr/';
   const courts = [
     ['Homer No. 194', 'Athens', 'English', '🇬🇧'],

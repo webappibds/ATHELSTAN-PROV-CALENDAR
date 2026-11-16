@@ -25,13 +25,13 @@ function setup(options = {}) {
       if (options.authOffline) throw new TypeError('Offline');
       return json({ login: 'test-editor' }, options.authStatus || 200);
     }
-    if (url.startsWith('https://api.github.com/repos/dskiad/ATHELSTAN-PROV-CALENDAR/contents/calendar-data.js')) {
+    if (url.startsWith('https://api.github.com/repos/webappibds/ATHELSTAN-PROV-CALENDAR/contents/calendar-data.js')) {
       if (settings.method !== 'PUT') return json({ sha: 'current-file-sha', encoding: 'base64', content: Buffer.from('window.PROVINCE_SCHEDULE=' + JSON.stringify(options.previous || programme) + ';').toString('base64') }, options.readStatus || 200);
       if (options.publishDeferred) return options.publishDeferred;
       if (options.publishOffline) throw new TypeError('Offline');
       return json(options.ok === false ? {} : { commit: { sha: 'new-commit-sha' } }, options.publishStatus || 200);
     }
-    if (url.startsWith('https://api.github.com/repos/dskiad/ATHELSTAN-PROV-CALENDAR/contents/calendars/')) {
+    if (url.startsWith('https://api.github.com/repos/webappibds/ATHELSTAN-PROV-CALENDAR/contents/calendars/')) {
       const path = new URL(url).pathname.split('/contents/')[1];
       if (settings.method !== 'PUT') {
         return repositoryFeeds.has(path) ? json({ sha: 'existing-feed-sha', encoding: 'base64', content: Buffer.from(repositoryFeeds.get(path)).toString('base64') }) : json({}, 404);
@@ -40,12 +40,12 @@ function setup(options = {}) {
       repositoryFeeds.set(path, Buffer.from(JSON.parse(settings.body).content, 'base64').toString('utf8'));
       return json({ commit: { sha: 'feed-commit-sha' } });
     }
-    if (url.startsWith('https://dskiad.github.io/ATHELSTAN-PROV-CALENDAR/calendars/')) {
+    if (url.startsWith('https://webappibds.github.io/ATHELSTAN-PROV-CALENDAR/calendars/')) {
       assert.equal(!!settings.headers?.Authorization, false);
       const path = new URL(url).pathname.replace('/ATHELSTAN-PROV-CALENDAR/', '');
       return { ok: true, status: 200, text: async () => liveFeedsReady ? repositoryFeeds.get(path) || '' : 'old subscription' };
     }
-    assert.ok(url.startsWith('https://dskiad.github.io/ATHELSTAN-PROV-CALENDAR/calendar-data.js?'), 'all requests must go directly to GitHub');
+    assert.ok(url.startsWith('https://webappibds.github.io/ATHELSTAN-PROV-CALENDAR/calendar-data.js?'), 'all requests must go directly to GitHub');
     assert.equal(!!settings.headers?.Authorization, false, 'never send the token with public-page checks');
     if (options.liveOffline) throw new TypeError('Offline');
     return { ok: true, status: 200, text: async () => 'window.PROVINCE_SCHEDULE=' + JSON.stringify(liveProgramme) + ';' };

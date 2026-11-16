@@ -9,15 +9,15 @@ X-WR-CALDESC:Court dates published by the Province of Greece. Updates are r
 X-WR-TIMEZONE:Europe/Athens
 BEGIN:VEVENT
 UID:court-195-20260923-1@athelstan-province-greece
-DTSTAMP:20260913T121344Z
-LAST-MODIFIED:20260913T121344Z
+DTSTAMP:20261116T203736Z
+LAST-MODIFIED:20261116T203736Z
 DTSTART;VALUE=DATE:20260923
 DTEND;VALUE=DATE:20260924
 SUMMARY:ATHELSTAN Court Frank Hastings No. 195
 LOCATION:Zakynthos
 DESCRIPTION:Province of Greece — Works of the Court\nMeeting type: Meetin
  g\nLanguage: English\nWebsite: https://moa-greece.gr/\nPublished programme
- : https://dskiad.github.io/ATHELSTAN-PROV-CALENDAR/
+ : https://webappibds.github.io/ATHELSTAN-PROV-CALENDAR/
 URL:https://moa-greece.gr/
 COLOR:red
 STATUS:CONFIRMED
@@ -25,15 +25,15 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:court-195-20261111-1@athelstan-province-greece
-DTSTAMP:20260913T121344Z
-LAST-MODIFIED:20260913T121344Z
+DTSTAMP:20261116T203736Z
+LAST-MODIFIED:20261116T203736Z
 DTSTART;VALUE=DATE:20261111
 DTEND;VALUE=DATE:20261112
 SUMMARY:ATHELSTAN Court Frank Hastings No. 195
 LOCATION:Zakynthos
 DESCRIPTION:Province of Greece — Works of the Court\nMeeting type: Meetin
  g\nLanguage: English\nWebsite: https://moa-greece.gr/\nPublished programme
- : https://dskiad.github.io/ATHELSTAN-PROV-CALENDAR/
+ : https://webappibds.github.io/ATHELSTAN-PROV-CALENDAR/
 URL:https://moa-greece.gr/
 COLOR:red
 STATUS:CONFIRMED
@@ -41,15 +41,15 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:court-195-20270210-1@athelstan-province-greece
-DTSTAMP:20260913T121344Z
-LAST-MODIFIED:20260913T121344Z
+DTSTAMP:20261116T203736Z
+LAST-MODIFIED:20261116T203736Z
 DTSTART;VALUE=DATE:20270210
 DTEND;VALUE=DATE:20270211
 SUMMARY:ATHELSTAN Court Frank Hastings No. 195
 LOCATION:Zakynthos
 DESCRIPTION:Province of Greece — Works of the Court\nMeeting type: Instal
  lation\nLanguage: English\nWebsite: https://moa-greece.gr/\nPublished prog
- ramme: https://dskiad.github.io/ATHELSTAN-PROV-CALENDAR/
+ ramme: https://webappibds.github.io/ATHELSTAN-PROV-CALENDAR/
 URL:https://moa-greece.gr/
 COLOR:red
 STATUS:CONFIRMED

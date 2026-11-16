@@ -23,7 +23,7 @@ button:focus-visible,a:focus-visible,label.file:focus-within{outline:3px solid v
 .connection a{display:inline-block;max-width:100%;min-height:44px}
 .connection label{display:block;font-weight:700;margin-bottom:.4rem}
 .connection input{max-width:40rem;min-height:44px;font-size:1rem}
-</style></head><body><main class="wrap"><header class="top"><div><h1>Province of Greece — Calendar Editor</h1><div class="hint">Connect GitHub, edit the Court works, and publish. Follow the status below until the live update is confirmed.</div></div><nav class="actions"><button class="primary" id="save">Save draft</button><button class="primary" id="publish">Connect GitHub</button><a id="resultLink" href="https://dskiad.github.io/ATHELSTAN-PROV-CALENDAR/index.html" target="_blank" rel="noopener noreferrer">Open live calendar ↗</a></nav></header>
+</style></head><body><main class="wrap"><header class="top"><div><h1>Province of Greece — Calendar Editor</h1><div class="hint">Connect GitHub, edit the Court works, and publish. Follow the status below until the live update is confirmed.</div></div><nav class="actions"><button class="primary" id="save">Save draft</button><button class="primary" id="publish">Connect GitHub</button><a id="resultLink" href="https://webappibds.github.io/ATHELSTAN-PROV-CALENDAR/index.html" target="_blank" rel="noopener noreferrer">Open live calendar ↗</a></nav></header>
 <section class="publication" aria-labelledby="publicationTitle">
   <h2 id="publicationTitle">Publication status</h2>
   <ol class="status-list">
@@ -31,14 +31,14 @@ button:focus-visible,a:focus-visible,label.file:focus-within{outline:3px solid v
     <li><strong>2. Save to the repository</strong><p id="repositoryStatus" role="status" aria-live="polite" aria-atomic="true" data-state="idle">No programme published from this tab yet.</p></li>
     <li><strong>3. Live calendar</strong><p id="deploymentStatus" role="status" aria-live="polite" aria-atomic="true" data-state="idle">After saving, the editor checks when your programme appears on the live page.</p></li>
   </ol>
-  <div class="actions"><button id="checkDeployment" hidden>Check live update again</button><a id="repositoryLink" href="https://github.com/dskiad/ATHELSTAN-PROV-CALENDAR/blob/main/calendar-data.js" target="_blank" rel="noopener noreferrer" hidden>View saved programme in GitHub ↗</a><button id="signout" hidden>Disconnect GitHub</button></div>
+  <div class="actions"><button id="checkDeployment" hidden>Check live update again</button><a id="repositoryLink" href="https://github.com/webappibds/ATHELSTAN-PROV-CALENDAR/blob/main/calendar-data.js" target="_blank" rel="noopener noreferrer" hidden>View saved programme in GitHub ↗</a><button id="signout" hidden>Disconnect GitHub</button></div>
 </section>
 
 <section id="githubConnection" class="publication connection" aria-labelledby="connectionTitle" hidden>
   <h2 id="connectionTitle">Connect directly to GitHub</h2>
   <p>Create a token once, then use it here to publish your calendar. Your browser sends the token directly to GitHub and keeps it in this tab until you disconnect or close the tab.</p>
   <ol class="connection-steps">
-    <li>Open <a id="createGithubToken" href="https://github.com/settings/personal-access-tokens/new?name=Province%20Calendar&amp;description=Publish%20Court%20dates&amp;target_name=dskiad&amp;expires_in=90&amp;contents=write" target="_blank" rel="noopener noreferrer">Create a GitHub token ↗</a> and sign in to <strong>dskiad</strong>.</li>
+    <li>Open <a id="createGithubToken" href="https://github.com/settings/personal-access-tokens/new?name=Province%20Calendar&amp;description=Publish%20Court%20dates&amp;target_name=webappibds&amp;expires_in=90&amp;contents=write" target="_blank" rel="noopener noreferrer">Create a GitHub token ↗</a> and sign in to <strong>webappibds</strong>.</li>
     <li>For <strong>Repository access</strong>, choose <strong>Only select repositories</strong> → <strong>ATHELSTAN-PROV-CALENDAR</strong>.</li>
     <li>Under repository permissions, confirm <strong>Contents: Read and write</strong>, then click <strong>Generate token</strong>.</li>
     <li>Copy the token and paste it into the field below.</li>
@@ -55,8 +55,8 @@ button:focus-visible,a:focus-visible,label.file:focus-within{outline:3px solid v
 const courts=[['Homer No. 194','Athens','English','🇬🇧'],['Northern Paladins No. 198','Thessaloniki','English','🇬🇧'],['Rosa Rhodensis No. 192','Rodos','English','🇬🇧'],['Sectio Aurea No. 125','Piraeus','Greek','🇬🇷'],['Frank Hastings No. 195','Zakynthos','English','🇬🇧'],['Sophia No. 193','Piraeus','Greek','🇬🇷'],['William Cartwright No. 196','Corfu','Greek','🇬🇷']], cities=[...new Set(courts.map(x=>x[1]))],types=['Meeting','Installation','Annual Meeting','Emergency Meeting'];
 // GitHub confirms the repository save; the public data confirms the live update.
 function createPublisher({ ui, getSchedule, saveDraft }) {
-  const repository = 'https://api.github.com/repos/dskiad/ATHELSTAN-PROV-CALENDAR';
-  const live = 'https://dskiad.github.io/ATHELSTAN-PROV-CALENDAR/';
+  const repository = 'https://api.github.com/repos/webappibds/ATHELSTAN-PROV-CALENDAR';
+  const live = 'https://webappibds.github.io/ATHELSTAN-PROV-CALENDAR/';
   const tokenKey = 'provinceGithubToken';
   const publicationKey = 'provinceLastPublication';
   const pollInterval = 10000;

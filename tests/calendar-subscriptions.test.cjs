@@ -87,7 +87,7 @@ test('individual Google event links contain the selected Court, all-day dates, a
   assert.ok(link.searchParams.get('details').includes('Website: https://moa-greece.gr/'));
 });
 test('Court subscription URLs are permanent public HTTPS links', () => {
-  assert.equal(calendars.feedUrl('Sophia No. 193'), 'https://dskiad.github.io/ATHELSTAN-PROV-CALENDAR/calendars/court-193.ics');
+  assert.equal(calendars.feedUrl('Sophia No. 193'), 'https://webappibds.github.io/ATHELSTAN-PROV-CALENDAR/calendars/court-193.ics');
   assert.equal(calendars.feedPath('Renamed Sophia No. 193'), calendars.feedPath('Sophia No. 193'));
   assert.notEqual(calendars.feedPath('Custom Court α'), calendars.feedPath('Custom Court β'));
 });

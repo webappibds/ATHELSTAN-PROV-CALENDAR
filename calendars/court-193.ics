@@ -9,15 +9,15 @@ X-WR-CALDESC:Court dates published by the Province of Greece. Updates are r
 X-WR-TIMEZONE:Europe/Athens
 BEGIN:VEVENT
 UID:court-193-20261001-1@athelstan-province-greece
-DTSTAMP:20260913T121344Z
-LAST-MODIFIED:20260913T121344Z
+DTSTAMP:20261116T203736Z
+LAST-MODIFIED:20261116T203736Z
 DTSTART;VALUE=DATE:20261001
 DTEND;VALUE=DATE:20261002
 SUMMARY:ATHELSTAN Court Sophia No. 193
 LOCATION:Piraeus
 DESCRIPTION:Province of Greece — Works of the Court\nMeeting type: Meetin
  g\nLanguage: Greek\nWebsite: https://moa-greece.gr/\nPublished programme: 
- https://dskiad.github.io/ATHELSTAN-PROV-CALENDAR/
+ https://webappibds.github.io/ATHELSTAN-PROV-CALENDAR/
 URL:https://moa-greece.gr/
 COLOR:red
 STATUS:CONFIRMED
@@ -25,15 +25,15 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:court-193-20261105-1@athelstan-province-greece
-DTSTAMP:20260913T121344Z
-LAST-MODIFIED:20260913T121344Z
+DTSTAMP:20261116T203736Z
+LAST-MODIFIED:20261116T203736Z
 DTSTART;VALUE=DATE:20261105
 DTEND;VALUE=DATE:20261106
 SUMMARY:ATHELSTAN Court Sophia No. 193
 LOCATION:Piraeus
 DESCRIPTION:Province of Greece — Works of the Court\nMeeting type: Meetin
  g\nLanguage: Greek\nWebsite: https://moa-greece.gr/\nPublished programme: 
- https://dskiad.github.io/ATHELSTAN-PROV-CALENDAR/
+ https://webappibds.github.io/ATHELSTAN-PROV-CALENDAR/
 URL:https://moa-greece.gr/
 COLOR:red
 STATUS:CONFIRMED
@@ -41,15 +41,15 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:court-193-20270107-1@athelstan-province-greece
-DTSTAMP:20260913T121344Z
-LAST-MODIFIED:20260913T121344Z
+DTSTAMP:20261116T203736Z
+LAST-MODIFIED:20261116T203736Z
 DTSTART;VALUE=DATE:20270107
 DTEND;VALUE=DATE:20270108
 SUMMARY:ATHELSTAN Court Sophia No. 193
 LOCATION:Piraeus
 DESCRIPTION:Province of Greece — Works of the Court\nMeeting type: Instal
  lation\nLanguage: Greek\nWebsite: https://moa-greece.gr/\nPublished progra
- mme: https://dskiad.github.io/ATHELSTAN-PROV-CALENDAR/
+ mme: https://webappibds.github.io/ATHELSTAN-PROV-CALENDAR/
 URL:https://moa-greece.gr/
 COLOR:red
 STATUS:CONFIRMED
