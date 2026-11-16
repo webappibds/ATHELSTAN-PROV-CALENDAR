@@ -8,6 +8,8 @@ button:disabled{cursor:wait;opacity:.65}
 button:focus-visible,a:focus-visible,label.file:focus-within{outline:3px solid var(--gold);outline-offset:3px}
 .publication{margin:20px 0 12px;padding:18px;border:1px solid #c7b68e;border-radius:8px;background:#fffdf8}
 .publication h2{font-size:1.15rem;margin:0 0 12px;color:var(--navy)}
+.publication-head{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:4px 18px;margin-bottom:12px}.publication-head h2{margin:0}
+.token-warning{margin:0;color:var(--red);font-weight:700;overflow-wrap:anywhere}
 .status-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;list-style:none;padding:0;margin:0 0 12px}
 .status-list li{min-width:0}.status-list p{margin:8px 0 0;padding:10px 12px;border-left:4px solid #b5b5b5;background:#f1f1ed;overflow-wrap:anywhere;font-size:.95rem}
 .status-list p[data-state=success]{border-color:#237044;background:#edf7ef;color:#17512f}
@@ -73,7 +75,7 @@ input[aria-invalid=true]{border-color:var(--red);background:#fff0ef}
 .image-note{margin:0 0 10px;font-size:.9rem;color:#655a48;min-height:1.2em}
 </style></head><body><main class="wrap"><header class="top"><div><h1>Province of Greece — Calendar Editor</h1><div class="hint">Connect GitHub, edit the Court works, Courts and page texts, and publish. Follow the status below until the live update is confirmed.</div></div><nav class="actions"><button class="primary" id="save">Save draft</button><button class="primary" id="publish">Connect GitHub</button><a id="resultLink" href="https://webappibds.github.io/ATHELSTAN-PROV-CALENDAR/index.html" target="_blank" rel="noopener noreferrer">Open live calendar ↗</a></nav></header>
 <section class="publication" aria-labelledby="publicationTitle">
-  <h2 id="publicationTitle">Publication status</h2>
+  <div class="publication-head"><h2 id="publicationTitle">Publication status</h2><p class="token-warning">Keep your GitHub token safe — store it in a password manager and never share it.</p></div>
   <ol class="status-list">
     <li><strong>1. GitHub connection</strong><p id="signinStatus" role="status" aria-live="polite" aria-atomic="true" data-state="idle">Connect GitHub to publish your changes.</p></li>
     <li><strong>2. Save to the repository</strong><p id="repositoryStatus" role="status" aria-live="polite" aria-atomic="true" data-state="idle">No programme published from this tab yet.</p></li>
