@@ -16,6 +16,18 @@
   }
   try {
     const share = CourtCalendars;
+    let content = share.defaultContent();
+    try {
+      // Page texts and Courts are optional; the original wording remains if they cannot load.
+      const answer = await fetch('calendar-content.js?updated=' + Date.now(), { cache: 'no-store' });
+      if (answer.ok) content = share.parseContent(await answer.text());
+    } catch { /* Keep the default texts. */ }
+    share.useCourts(content.courts);
+    document.querySelectorAll('[data-text]').forEach(element => {
+      const text = content.texts[element.dataset.text];
+      if (text) element.textContent = text;
+    });
+    if (content.texts.pageTitle) document.title = content.texts.pageTitle;
     const response = await fetch('calendar-data.js?updated=' + Date.now(), { cache: 'no-store' });
     if (!response.ok) throw new Error('Calendar download failed');
     const schedule = share.parseSchedule(await response.text());
@@ -32,7 +44,7 @@
         const first = !section;
         if (!section) { section = textElement('section', '', 'month'); section.dataset.month = month; area.append(section); months.set(month, section); }
         const court = share.courts.find(court => share.courtKey(court[0]) === share.courtKey(row[1]));
-        const work = textElement('div', '', 'work' + (row[4] === 'Installation' ? ' installation' : ''));
+        const work = textElement('div', '', 'work' + (/installation/i.test(row[4]) ? ' installation' : ''));
         const flag = textElement('div', court ? court[3] : '', 'flag');
         flag.title = court ? court[2] : '';
         work.append(textElement('div', first ? month : '', 'monthLabel'), flag,
@@ -42,7 +54,7 @@
           textElement('div', row[4], 'type'));
         section.append(work);
       }
-      if (!visible.length) area.append(textElement('p', 'No dates are currently published for this Court.'));
+      if (!visible.length) area.append(textElement('p', content.texts.noDates));
       panel.hidden = !picker.value;
       help.hidden = true;
       openHelp.setAttribute('aria-expanded', 'false');

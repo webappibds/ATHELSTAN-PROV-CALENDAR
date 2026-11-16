@@ -4,6 +4,9 @@ const fs = require('node:fs');
 const path = require('node:path');
 const calendars = require('../calendar-subscriptions.js');
 const root = path.resolve(__dirname, '..');
+const contentFile = path.join(root, 'calendar-content.js');
+// Edited Courts (names and languages) come from the editor's content file when present.
+if (fs.existsSync(contentFile)) calendars.useCourts(calendars.parseContent(fs.readFileSync(contentFile, 'utf8')).courts);
 const schedule = calendars.parseSchedule(fs.readFileSync(path.join(root, 'calendar-data.js'), 'utf8'));
 const modifiedAt = new Date(Math.max(...['calendar-data.js', 'calendar-subscriptions.js']
   .map(file => fs.statSync(path.join(root, file)).mtimeMs))).toISOString();
