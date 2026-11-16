@@ -31,6 +31,14 @@ function setup(options = {}) {
       if (options.publishOffline) throw new TypeError('Offline');
       return json(options.ok === false ? {} : { commit: { sha: 'new-commit-sha' } }, options.publishStatus || 200);
     }
+    if (url.startsWith('https://api.github.com/repos/webappibds/ATHELSTAN-PROV-CALENDAR/contents/calendar-content.js')) {
+      if (settings.method !== 'PUT') return repositoryFeeds.has('calendar-content.js') ? json({ sha: 'content-sha', encoding: 'base64', content: Buffer.from(repositoryFeeds.get('calendar-content.js')).toString('base64') }) : json({}, 404);
+      repositoryFeeds.set('calendar-content.js', Buffer.from(JSON.parse(settings.body).content, 'base64').toString('utf8'));
+      return json({ commit: { sha: 'content-commit-sha' } });
+    }
+    if (url.startsWith('https://webappibds.github.io/ATHELSTAN-PROV-CALENDAR/calendar-content.js')) {
+      return { ok: true, status: 200, text: async () => liveFeedsReady ? repositoryFeeds.get('calendar-content.js') || '' : 'old content' };
+    }
     if (url.startsWith('https://api.github.com/repos/webappibds/ATHELSTAN-PROV-CALENDAR/contents/calendars/')) {
       const path = new URL(url).pathname.split('/contents/')[1];
       if (settings.method !== 'PUT') {
@@ -54,7 +62,7 @@ function setup(options = {}) {
     history: { replaceState: (_a, _b, url) => { location.hash = ''; navigations.push(url); } },
     setTimeout: (fn, delay) => { const id = ++timerId; timers.set(id, { fn, delay }); return id; }, clearTimeout: id => timers.delete(id) });
   vm.runInContext(code, sandbox);
-  const controller = sandbox.createPublisher({ ui, getSchedule: () => JSON.parse(JSON.stringify(options.draft || programme)), saveDraft: data => { drafts.push(data); return options.storageOK !== false; } });
+  const controller = sandbox.createPublisher({ ui, getSchedule: () => JSON.parse(JSON.stringify(options.draft || programme)), getContent: options.content && (() => options.content), saveDraft: data => { drafts.push(data); return options.storageOK !== false; } });
   return { controller, ui, values, requests, drafts, navigations, location, timers,
     connect: async value => { ui.tokenInput.value = value; await ui.form.onsubmit({ preventDefault() {} }); },
     setLive: value => { liveProgramme = value; },
@@ -214,4 +222,16 @@ test('a programme conflict reports any subscription files already saved', async 
   assert.equal(s.ui.repository.dataset.state, 'error');
   assert.match(s.ui.repository.textContent, /Some subscription files were saved/);
   assert.equal(s.ui.deployment.dataset.state, 'idle');
+});
+test('edited Courts and page texts are published and confirmed on the live page', async () => {
+  const content = CourtCalendars.normaliseContent({ texts: { title: 'ΕΠΑΡΧΙΑ' }, courts: CourtCalendars.defaultContent().courts, types: ['Meeting', 'Installation'] });
+  const s = setup({ session: { provinceGithubToken: 'unit-test-token' }, content });
+  await s.controller.init(); await s.ui.publish.onclick(); await flush();
+  assert.equal(s.ui.repository.dataset.state, 'success');
+  assert.match(s.ui.repository.textContent, /Courts and page texts/);
+  assert.deepEqual(CourtCalendars.parseContent(s.repositoryFeeds.get('calendar-content.js')), content);
+  s.setLive(programme); s.setLiveFeedsReady(false); await s.tick();
+  assert.equal(s.ui.deployment.dataset.state, 'busy');
+  s.setLiveFeedsReady(true); await s.tick();
+  assert.equal(s.ui.deployment.dataset.state, 'success');
 });

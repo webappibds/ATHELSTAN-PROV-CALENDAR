@@ -91,3 +91,12 @@ test('Court subscription URLs are permanent public HTTPS links', () => {
   assert.equal(calendars.feedPath('Renamed Sophia No. 193'), calendars.feedPath('Sophia No. 193'));
   assert.notEqual(calendars.feedPath('Custom Court α'), calendars.feedPath('Custom Court β'));
 });
+test('editable Courts and page texts round-trip and fall back to the original wording', () => {
+  const content = calendars.parseContent(fs.readFileSync(__dirname + '/../calendar-content.js', 'utf8'));
+  assert.deepEqual(content, calendars.defaultContent());
+  const edited = calendars.normaliseContent({ texts: { title: 'ΕΠΑΡΧΙΑ ΕΛΛΑΔΟΣ' }, courts: [['Nova No. 200', 'Chania', 'Greek', '🇬🇷']], types: ['Meeting'] });
+  assert.equal(edited.texts.title, 'ΕΠΑΡΧΙΑ ΕΛΛΑΔΟΣ');
+  assert.equal(edited.texts.worksHeading, 'Works of the Court');
+  assert.deepEqual(calendars.parseContent(calendars.serializeContent(edited)), edited);
+  assert.throws(() => calendars.parseContent('window.PROVINCE_CONTENT={"texts":{},"courts":[[""," ","",""]],"types":[]};'));
+});
