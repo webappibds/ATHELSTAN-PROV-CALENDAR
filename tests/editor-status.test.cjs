@@ -13,7 +13,7 @@ function setup(options = {}) {
   const ui = Object.fromEntries(['publish','signin','repository','deployment','check','resultLink','repositoryLink','signout','connection','tokenInput','connect','form','cancel'].map(key => [key, { dataset: {}, textContent: '', value: '', disabled: false, hidden: true, focus() {} }]));
   let dateNow = Date.parse('2026-09-13T16:00:00Z'), timerId = 0;
   class Clock extends Date { constructor(...args) { super(...(args.length ? args : [dateNow])); } static now() { return dateNow; } }
-  const timers = new Map(), requests = [], drafts = [], navigations = [];
+  const timers = new Map(), requests = [], drafts = [], navigations = [], uploaded = [];
   const repositoryFeeds = new Map(Object.entries(options.repositoryFeeds || {}));
   let liveFeedsReady = options.liveFeedsReady !== false;
   let liveProgramme = options.live || [['January 2020','Old Court','Old City','2020-01-01','Meeting']];
@@ -30,6 +30,16 @@ function setup(options = {}) {
       if (options.publishDeferred) return options.publishDeferred;
       if (options.publishOffline) throw new TypeError('Offline');
       return json(options.ok === false ? {} : { commit: { sha: 'new-commit-sha' } }, options.publishStatus || 200);
+    }
+    if (url.startsWith('https://api.github.com/repos/webappibds/ATHELSTAN-PROV-CALENDAR/contents/assets/uploads/')) {
+      const path = new URL(url).pathname.split('/contents/')[1];
+      if (settings.method !== 'PUT') return repositoryFeeds.has(path) ? json({ sha: 'image-sha' }) : json({}, 404);
+      repositoryFeeds.set(path, JSON.parse(settings.body).content);
+      return json({ commit: { sha: 'image-commit-sha' } });
+    }
+    if (url.startsWith('https://webappibds.github.io/ATHELSTAN-PROV-CALENDAR/assets/uploads/')) {
+      const path = new URL(url).pathname.replace('/ATHELSTAN-PROV-CALENDAR/', '');
+      return { ok: liveFeedsReady && repositoryFeeds.has(path), status: liveFeedsReady && repositoryFeeds.has(path) ? 200 : 404, text: async () => '' };
     }
     if (url.startsWith('https://api.github.com/repos/webappibds/ATHELSTAN-PROV-CALENDAR/contents/calendar-content.js')) {
       if (settings.method !== 'PUT') return repositoryFeeds.has('calendar-content.js') ? json({ sha: 'content-sha', encoding: 'base64', content: Buffer.from(repositoryFeeds.get('calendar-content.js')).toString('base64') }) : json({}, 404);
@@ -62,8 +72,8 @@ function setup(options = {}) {
     history: { replaceState: (_a, _b, url) => { location.hash = ''; navigations.push(url); } },
     setTimeout: (fn, delay) => { const id = ++timerId; timers.set(id, { fn, delay }); return id; }, clearTimeout: id => timers.delete(id) });
   vm.runInContext(code, sandbox);
-  const controller = sandbox.createPublisher({ ui, getSchedule: () => JSON.parse(JSON.stringify(options.draft || programme)), getContent: options.content && (() => options.content), saveDraft: data => { drafts.push(data); return options.storageOK !== false; } });
-  return { controller, ui, values, requests, drafts, navigations, location, timers,
+  const controller = sandbox.createPublisher({ ui, getSchedule: () => JSON.parse(JSON.stringify(options.draft || programme)), getContent: options.content && (() => options.content), getUploads: options.uploads && (() => options.uploads), onUploaded: list => uploaded.push(...list), saveDraft: data => { drafts.push(data); return options.storageOK !== false; } });
+  return { controller, ui, values, requests, drafts, navigations, location, timers, uploaded,
     connect: async value => { ui.tokenInput.value = value; await ui.form.onsubmit({ preventDefault() {} }); },
     setLive: value => { liveProgramme = value; },
     setLiveFeedsReady: value => { liveFeedsReady = value; }, repositoryFeeds,
@@ -234,4 +244,30 @@ test('edited Courts and page texts are published and confirmed on the live page'
   assert.equal(s.ui.deployment.dataset.state, 'busy');
   s.setLiveFeedsReady(true); await s.tick();
   assert.equal(s.ui.deployment.dataset.state, 'success');
+});
+test('uploaded images are saved before the programme and confirmed on the live page', async () => {
+  const path = 'assets/uploads/emblem-20261116120000.png';
+  const content = CourtCalendars.normaliseContent({ ...CourtCalendars.defaultContent(), images: { emblem: path, portrait: 'assets/provincial-grand-master.jpg' } });
+  const uploads = [{ name: 'emblem', path, base64: 'iVBORw0KGgo=' }];
+  const s = setup({ session: { provinceGithubToken: 'unit-test-token' }, content, uploads });
+  await s.controller.init(); await s.ui.publish.onclick(); await flush();
+  assert.equal(s.ui.repository.dataset.state, 'success');
+  assert.match(s.ui.repository.textContent, /1 image/);
+  const puts = s.requests.filter(r => r.method === 'PUT').map(r => new URL(r.url).pathname.split('/contents/')[1]);
+  assert.equal(puts[0], path);
+  assert.equal(puts.at(-1), 'calendar-data.js');
+  assert.equal(s.repositoryFeeds.get(path), 'iVBORw0KGgo=');
+  assert.equal(CourtCalendars.parseContent(s.repositoryFeeds.get('calendar-content.js')).images.emblem, path);
+  assert.deepEqual(s.uploaded.map(u => u.path), [path]);
+  s.setLive(programme); s.setLiveFeedsReady(false); await s.tick();
+  assert.equal(s.ui.deployment.dataset.state, 'busy');
+  s.setLiveFeedsReady(true); await s.tick();
+  assert.equal(s.ui.deployment.dataset.state, 'success');
+});
+test('image paths outside the assets folder are rejected', () => {
+  for (const bad of ['../x.png', 'https://evil.example/x.png', "assets/x.png') ;", 'assets/x.svg', 'assets/../x.png']) {
+    assert.equal(CourtCalendars.isImagePath(bad), false);
+  }
+  const content = CourtCalendars.normaliseContent({ ...CourtCalendars.defaultContent(), images: { emblem: "assets/a.png'),url(x" } });
+  assert.equal(content.images.emblem, 'assets/province-emblem.jpeg');
 });
