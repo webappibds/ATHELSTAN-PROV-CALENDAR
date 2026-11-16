@@ -17,16 +17,33 @@
     subtitle: 'PROV. GRAND MASTER',
     name: 'RW. Bro. Ioannis Benetatos, KCAG',
     calendarWord: 'calendar',
-    finderGreek: 'Βρες ημερομηνίες της Αυλής σου:',
-    finderEnglish: 'Find the dates of your Court:',
-    allCourts: 'Όλες οι Αυλές',
+    finder: 'Find the dates of your Court:',
+    allCourts: 'All Courts',
     worksHeading: 'Works of the Court',
     noDates: 'No dates are currently published for this Court.'
+  };
+  const defaultGreekTexts = {
+    pageTitle: 'Επαρχία Ελλάδος — Ημερολόγιο',
+    title: 'ΕΠΑΡΧΙΑ ΕΛΛΑΔΟΣ',
+    subtitle: 'ΕΠΑΡΧ. ΜΕΓΑΣ ΔΙΔΑΣΚΑΛΟΣ',
+    name: 'RW. Bro. Ioannis Benetatos, KCAG',
+    calendarWord: 'ημερολόγιο',
+    finder: 'Βρες ημερομηνίες της Αυλής σου:',
+    allCourts: 'Όλες οι Αυλές',
+    worksHeading: 'Εργασίες της Αυλής',
+    noDates: 'Δεν υπάρχουν δημοσιευμένες ημερομηνίες για αυτή την Αυλή.'
+  };
+  // Greek names for cities, meeting types and languages; anything missing is shown as written.
+  const defaultTranslations = {
+    Meeting: 'Συνεδρία', Installation: 'Εγκατάσταση', 'Annual Meeting': 'Ετήσια Συνεδρία', 'Emergency Meeting': 'Έκτακτη Συνεδρία',
+    Athens: 'Αθήνα', Thessaloniki: 'Θεσσαλονίκη', Rodos: 'Ρόδος', Piraeus: 'Πειραιάς', Zakynthos: 'Ζάκυνθος', Corfu: 'Κέρκυρα',
+    English: 'Αγγλικά', Greek: 'Ελληνικά'
   };
   const defaultTypes = ['Meeting', 'Installation', 'Annual Meeting', 'Emergency Meeting'];
   const defaultImages = { emblem: 'assets/province-emblem.jpeg', portrait: 'assets/provincial-grand-master.jpg' };
   function defaultContent() {
-    return { texts: { ...defaultTexts }, courts: courts.map(court => court.slice()), types: defaultTypes.slice(), images: { ...defaultImages } };
+    return { texts: { ...defaultTexts }, textsGreek: { ...defaultGreekTexts }, courts: courts.map(court => court.slice()),
+      types: defaultTypes.slice(), translations: { ...defaultTranslations }, images: { ...defaultImages } };
   }
   function isImagePath(value) {
     // Only images stored in this repository's assets folder; the path is also used inside CSS url().
@@ -36,13 +53,32 @@
     return !!value && typeof value === 'object' && !!value.texts && typeof value.texts === 'object'
       && Object.values(value.texts).every(text => typeof text === 'string')
       && Array.isArray(value.courts) && value.courts.every(court => Array.isArray(court) && court.length === 4 && court.every(cell => typeof cell === 'string') && court[0].trim())
-      && Array.isArray(value.types) && value.types.every(type => typeof type === 'string');
+      && Array.isArray(value.types) && value.types.every(type => typeof type === 'string')
+      && [value.textsGreek, value.translations].every(map => map === undefined || (!!map && typeof map === 'object' && !Array.isArray(map) && Object.values(map).every(text => typeof text === 'string')));
   }
+  const greekLetters = /[\u0370-\u03ff\u1f00-\u1fff]/;
   function normaliseContent(value) {
     // Missing keys fall back to the original page texts.
     const result = defaultContent();
     if (!isContent(value)) return result;
-    Object.assign(result.texts, value.texts);
+    const texts = { ...value.texts }, greek = { ...(value.textsGreek || {}) };
+    // Earlier files had one bilingual filter label pair and a Greek “all Courts” option.
+    if (texts.finderEnglish && !texts.finder) texts.finder = texts.finderEnglish;
+    if (texts.finderGreek && !greek.finder) greek.finder = texts.finderGreek;
+    if (texts.allCourts && greekLetters.test(texts.allCourts)) {
+      if (!greek.allCourts) greek.allCourts = texts.allCourts;
+      delete texts.allCourts;
+    }
+    delete texts.finderEnglish;
+    delete texts.finderGreek;
+    delete greek.finderEnglish;
+    delete greek.finderGreek;
+    for (const [key, text] of Object.entries(texts)) if (key in defaultTexts && text.trim()) result.texts[key] = text;
+    for (const [key, text] of Object.entries(greek)) if (key in defaultGreekTexts && text.trim()) result.textsGreek[key] = text;
+    if (value.translations) {
+      result.translations = {};
+      for (const [english, text] of Object.entries(value.translations)) if (english.trim() && text.trim()) result.translations[english.trim()] = text.trim();
+    }
     result.courts = value.courts.map(court => court.slice());
     if (value.types.length) result.types = value.types.slice();
     if (value.images && typeof value.images === 'object') {
@@ -60,8 +96,10 @@
   function serializeContent(content) {
     // One Court per line keeps the file readable for direct edits.
     return 'window.PROVINCE_CONTENT={\n"texts":' + JSON.stringify(content.texts, null, 1)
+      + ',\n"textsGreek":' + JSON.stringify(content.textsGreek || defaultGreekTexts, null, 1)
       + ',\n"courts":[\n' + content.courts.map(court => JSON.stringify(court)).join(',\n')
       + '\n],\n"types":' + JSON.stringify(content.types)
+      + ',\n"translations":' + JSON.stringify(content.translations || defaultTranslations, null, 1)
       + ',\n"images":' + JSON.stringify(content.images || defaultImages, null, 1) + '\n};\n';
   }
   function useCourts(list) {

@@ -100,3 +100,17 @@ test('editable Courts and page texts round-trip and fall back to the original wo
   assert.deepEqual(calendars.parseContent(calendars.serializeContent(edited)), edited);
   assert.throws(() => calendars.parseContent('window.PROVINCE_CONTENT={"texts":{},"courts":[[""," ","",""]],"types":[]};'));
 });
+test('older bilingual content files move their Greek wording into the Greek texts', () => {
+  const old = { texts: { title: 'PROVINCE', finderGreek: 'Βρες την Αυλή σου:', finderEnglish: 'Find your Court:', allCourts: 'Όλες οι Αυλές' },
+    courts: [['Sophia No. 193', 'Piraeus', 'Greek', '🇬🇷']], types: ['Meeting'] };
+  const content = calendars.normaliseContent(old);
+  assert.equal(content.texts.finder, 'Find your Court:');
+  assert.equal(content.texts.allCourts, 'All Courts');
+  assert.equal(content.textsGreek.finder, 'Βρες την Αυλή σου:');
+  assert.equal(content.textsGreek.allCourts, 'Όλες οι Αυλές');
+  assert.equal('finderGreek' in content.texts, false);
+  assert.equal(content.translations.Piraeus, 'Πειραιάς');
+  const edited = calendars.normaliseContent({ ...content, translations: { Chania: 'Χανιά', Empty: ' ' } });
+  assert.deepEqual(edited.translations, { Chania: 'Χανιά' });
+  assert.deepEqual(calendars.parseContent(calendars.serializeContent(edited)), edited);
+});
