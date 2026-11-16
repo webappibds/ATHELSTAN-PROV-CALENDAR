@@ -92,8 +92,10 @@ test('Court subscription URLs are permanent public HTTPS links', () => {
   assert.notEqual(calendars.feedPath('Custom Court α'), calendars.feedPath('Custom Court β'));
 });
 test('editable Courts and page texts round-trip and fall back to the original wording', () => {
+  // The published file changes whenever the editor publishes, so check that it is valid rather than unchanged.
   const content = calendars.parseContent(fs.readFileSync(__dirname + '/../calendar-content.js', 'utf8'));
-  assert.deepEqual(content, calendars.defaultContent());
+  assert.deepEqual(calendars.parseContent(calendars.serializeContent(content)), content);
+  assert.deepEqual(calendars.parseContent(calendars.serializeContent(calendars.defaultContent())), calendars.defaultContent());
   const edited = calendars.normaliseContent({ texts: { title: 'ΕΠΑΡΧΙΑ ΕΛΛΑΔΟΣ' }, courts: [['Nova No. 200', 'Chania', 'Greek', '🇬🇷']], types: ['Meeting'] });
   assert.equal(edited.texts.title, 'ΕΠΑΡΧΙΑ ΕΛΛΑΔΟΣ');
   assert.equal(edited.texts.worksHeading, 'Works of the Court');
