@@ -46,7 +46,7 @@ window.PROVINCE_CONTENT={
  "Greek": "Ελληνικά"
 },
 "images":{
- "emblem": "assets/uploads/emblem-20261116221241-small.webp",
+ "emblem": "assets/uploads/emblem-20261116223006.webp",
  "portrait": "assets/provincial-grand-master.jpg"
 }
 };
