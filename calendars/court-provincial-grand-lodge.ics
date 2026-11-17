@@ -1,0 +1,10 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Province of Greece//Court Calendar//EN
+CALSCALE:GREGORIAN
+COLOR:red
+X-WR-CALNAME:ATHELSTAN Provincial Grand Lodge
+X-WR-CALDESC:Court dates published by the Province of Greece. Updates are r
+ efreshed by your calendar provider.
+X-WR-TIMEZONE:Europe/Athens
+END:VCALENDAR

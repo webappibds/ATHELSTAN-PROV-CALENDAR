@@ -40,9 +40,11 @@ test('invalid or impossible dates stop publication', () => {
   }
 });
 test('a filtered Court includes only its dates regardless of missing month labels', () => {
-  const sophia = schedule.filter(row => row[1] === 'Sophia No. 193').map(row => ['', ...row.slice(1)]);
-  const result = calendars.calendar(sophia, 'Sophia No. 193', at);
-  assert.equal(events(result).length, 3);
+  // Fixed data: the published programme changes whenever the editor publishes.
+  const mixed = [['', 'Sophia No. 193', 'Piraeus', '2026-11-05', 'Meeting'], ['', 'Homer No. 194', 'Athens', '2026-11-06', 'Meeting'],
+    ['', 'Sophia No. 193', 'Piraeus', '2027-01-07', 'Installation']];
+  const result = calendars.calendar(mixed, 'Sophia No. 193', at);
+  assert.equal(events(result).length, 2);
   assert.ok(result.includes('DTSTART;VALUE=DATE:20270107'));
   assert.doesNotMatch(result, /Homer|Invalid Date/);
 });
@@ -115,4 +117,12 @@ test('older bilingual content files move their Greek wording into the Greek text
   const edited = calendars.normaliseContent({ ...content, translations: { Chania: 'Χανιά', Empty: ' ' } });
   assert.deepEqual(edited.translations, { Chania: 'Χανιά' });
   assert.deepEqual(calendars.parseContent(calendars.serializeContent(edited)), edited);
+});
+test('bodies without a Court number get a readable feed and their own title', () => {
+  assert.equal(calendars.feedPath('Provincial Grand Lodge'), 'calendars/court-provincial-grand-lodge.ics');
+  assert.equal(calendars.title('Provincial Grand Lodge'), 'ATHELSTAN Provincial Grand Lodge');
+  assert.equal(calendars.title('Sophia No. 193'), 'ATHELSTAN Court Sophia No. 193');
+  const feed = calendars.calendar([['', 'Provincial Grand Lodge', 'Athens', '2027-03-20', 'Provincial Grand Lodge Assembly']], 'Provincial Grand Lodge', '2026-11-17T10:00:00Z');
+  assert.ok(feed.includes('SUMMARY:ATHELSTAN Provincial Grand Lodge\r\n'));
+  assert.match(feed.replace(/\r\n /g, ''), /Meeting type: Provincial Grand Lodge Assembly/);
 });

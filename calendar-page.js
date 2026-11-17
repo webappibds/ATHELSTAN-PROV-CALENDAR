@@ -106,7 +106,7 @@
       applyFixedWording();
       document.querySelectorAll('[data-text]').forEach(element => { element.textContent = pageText(element.dataset.text); });
       document.title = pageText('pageTitle');
-      [...picker.options].slice(1).forEach((option, i) => { option.textContent = courtNames[i][0] + ' — ' + word(courtNames[i][1]); });
+      [...picker.options].slice(1).forEach((option, i) => { option.textContent = courtNames[i][0] + (courtNames[i][1] ? ' — ' + word(courtNames[i][1]) : ''); });
       render();
     }
     function render() {

@@ -22,6 +22,7 @@ window.PROVINCE_CONTENT={
  "noDates": "Δεν υπάρχουν δημοσιευμένες ημερομηνίες για αυτή την Αυλή."
 },
 "courts":[
+["Provincial Grand Lodge","","Greek","🇬🇷"],
 ["Homer No. 194","Athens","English","🇬🇧"],
 ["Northern Paladins No. 198","Thessaloniki","English","🇬🇧"],
 ["Rosa Rhodensis No. 192","Rodos","English","🇬🇧"],
@@ -30,7 +31,7 @@ window.PROVINCE_CONTENT={
 ["Sophia No. 193","Piraeus","Greek","🇬🇷"],
 ["William Cartwright No. 196","Corfu","Greek","🇬🇷"]
 ],
-"types":["Meeting","Installation","Annual Meeting","Emergency Meeting"],
+"types":["Meeting","Installation","Annual Meeting","Emergency Meeting","Provincial Grand Lodge Assembly"],
 "translations":{
  "Meeting": "Συνεδρία",
  "Installation": "Εγκατάσταση",
@@ -43,7 +44,8 @@ window.PROVINCE_CONTENT={
  "Zakynthos": "Ζάκυνθος",
  "Corfu": "Κέρκυρα",
  "English": "Αγγλικά",
- "Greek": "Ελληνικά"
+ "Greek": "Ελληνικά",
+ "Provincial Grand Lodge Assembly": "Συνέλευση Επαρχιακής Μεγάλης Στοάς"
 },
 "images":{
  "emblem": "assets/uploads/emblem-20261116223006.webp",
