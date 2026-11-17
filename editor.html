@@ -134,7 +134,7 @@ input[aria-invalid=true]{border-color:var(--red);background:#fff0ef}
 </section>
 <datalist id="cityOptions"></datalist><datalist id="languageOptions"><option value="English"><option value="Greek"></datalist><datalist id="flagOptions"><option value="🇬🇧"><option value="🇬🇷"></datalist>
 <div id="datePicker" class="picker" role="dialog" aria-label="Choose a date" hidden></div>
-</main><script src="calendar-subscriptions.js?v=5"></script><script>
+</main><script src="calendar-subscriptions.js?v=7"></script><script>
 // GitHub confirms the repository save; the public data confirms the live update.
 function createPublisher({ ui, getSchedule, getContent, getUploads, onUploaded, saveDraft }) {
   const repository = 'https://api.github.com/repos/webappibds/ATHELSTAN-PROV-CALENDAR';
@@ -947,6 +947,11 @@ async function loadContent() {
     // Images always start from the live site; new uploads waiting to publish are kept separately.
     const content = CourtCalendars.normaliseContent(draft);
     content.images = published.images;
+    // Courts, meeting types and Greek names published after the draft was saved are added to it.
+    const names = new Set(content.courts.map(court => court[0]));
+    content.courts.push(...published.courts.filter(court => !names.has(court[0])));
+    content.types.push(...published.types.filter(type => !content.types.includes(type)));
+    content.translations = { ...published.translations, ...content.translations };
     return { content, draft: true };
   }
   return { content: published, draft: false };

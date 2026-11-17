@@ -127,10 +127,16 @@
     // Court numbers are permanent even when a Court's display name changes.
     const number = name.match(/\bNo\.?\s*(\d+)\b/i);
     if (number) return 'court-' + number[1];
+    // Plain English names get a readable file name, e.g. court-provincial-grand-lodge.
+    const words = name.trim().normalize('NFC').toLowerCase().match(/[a-z0-9]+/g);
+    if (words && /^[a-z0-9\s.'&-]+$/i.test(name.trim())) return 'court-' + words.join('-');
     // Preserve distinct custom Court names without unsafe path characters.
     return 'court-' + Array.from(new TextEncoder().encode(name.trim().normalize('NFC').toLowerCase()), byte => byte.toString(16).padStart(2, '0')).join('');
   }
-  function title(name) { return 'ATHELSTAN Court ' + name; }
+  function title(name) {
+    // Numbered Courts read “ATHELSTAN Court Sophia No. 193”; other bodies keep their own name.
+    return /\bNo\.?\s*\d+\b/i.test(name) ? 'ATHELSTAN Court ' + name : 'ATHELSTAN ' + name;
+  }
   function feedPath(name) { return 'calendars/' + courtKey(name) + '.ics'; }
   function feedUrl(name) { return base + feedPath(name); }
   function selected(schedule, name) {
